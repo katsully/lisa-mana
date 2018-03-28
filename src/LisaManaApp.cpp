@@ -27,6 +27,21 @@ private:
 	bool mDrawBackground = true;
 	bool mDrawSkeleton = true;
 	bool mDrawPentagon = true;
+
+	// points for 1st person pentagon
+	vec2 pointA1;
+	vec2 pointA2;
+	vec2 pointA3;
+	vec2 pointA4;
+	vec2 pointA5;
+
+	// points for 2nd person pentagon
+	vec2 pointB1;
+	vec2 pointB2;
+	vec2 pointB3;
+	vec2 pointB4;
+	vec2 pointB5;
+
 };
 
 LisaManaApp::LisaManaApp() {
@@ -104,6 +119,7 @@ void LisaManaApp::draw()
 		gl::pushMatrices();
 		gl::scale(vec2(getWindowSize()) / vec2(mChannelBodyIndex->getSize()));
 		gl::disable(GL_TEXTURE_2D);
+		int counter = 0;
 		for (const Kinect2::Body &body : mBodyFrame.getBodies()) {
 			if (body.isTracked()) {
 				gl::color(ColorAf::white());
@@ -118,50 +134,99 @@ void LisaManaApp::draw()
 						}
 					}
 				}
-				if (mDrawBackground) {
-					gl::color(1, 0, 0);
+				if (mDrawPentagon) {
+					// calculate positions which we will use to calculate the five vertices of the pentagons
 					vec2 headPos(mDevice->mapCameraToDepth(body.getJointMap().at(JointType_Head).getPosition()));
 					vec2 shoulderPos(mDevice->mapCameraToDepth(body.getJointMap().at(JointType_SpineShoulder).getPosition()));
-					vec2 point1 = (headPos + shoulderPos) / vec2(2);
-					gl::drawSolidCircle(point1, 5.0f, 32);
 
 					vec2 shoulderRPos(mDevice->mapCameraToDepth(body.getJointMap().at(JointType_ShoulderRight).getPosition()));
 					vec2 elbowRPos(mDevice->mapCameraToDepth(body.getJointMap().at(JointType_ElbowRight).getPosition()));
 					vec2 wristRPos(mDevice->mapCameraToDepth(body.getJointMap().at(JointType_WristRight).getPosition()));
 					vec2 handRPos(mDevice->mapCameraToDepth(body.getJointMap().at(JointType_HandRight).getPosition()));
-					vec2 point2 = (shoulderRPos + elbowRPos + wristRPos + handRPos) / vec2(4);
-					gl::drawSolidCircle(point2, 5.0f, 32);
 
 					vec2 shoulderLPos(mDevice->mapCameraToDepth(body.getJointMap().at(JointType_ShoulderLeft).getPosition()));
 					vec2 elbowLPos(mDevice->mapCameraToDepth(body.getJointMap().at(JointType_ElbowLeft).getPosition()));
 					vec2 wristLPos(mDevice->mapCameraToDepth(body.getJointMap().at(JointType_WristLeft).getPosition()));
 					vec2 handLPos(mDevice->mapCameraToDepth(body.getJointMap().at(JointType_HandLeft).getPosition()));
-					vec2 point3 = (shoulderLPos + elbowLPos + wristLPos + handLPos) / vec2(4);
-					gl::drawSolidCircle(point3, 5.0f, 32);
 
 					vec2 hipRPos(mDevice->mapCameraToDepth(body.getJointMap().at(JointType_HipRight).getPosition()));
 					vec2 kneeRPos(mDevice->mapCameraToDepth(body.getJointMap().at(JointType_KneeRight).getPosition()));
 					vec2 ankleRPos(mDevice->mapCameraToDepth(body.getJointMap().at(JointType_AnkleRight).getPosition()));
 					vec2 footRPos(mDevice->mapCameraToDepth(body.getJointMap().at(JointType_FootRight).getPosition()));
-					vec2 point4 = (hipRPos + kneeRPos + ankleRPos + footRPos) / vec2(4);
-					gl::drawSolidCircle(point4, 5.0f, 32);
 
 					vec2 hipLPos(mDevice->mapCameraToDepth(body.getJointMap().at(JointType_HipLeft).getPosition()));
 					vec2 kneeLPos(mDevice->mapCameraToDepth(body.getJointMap().at(JointType_KneeLeft).getPosition()));
 					vec2 ankleLPos(mDevice->mapCameraToDepth(body.getJointMap().at(JointType_AnkleLeft).getPosition()));
 					vec2 footLPos(mDevice->mapCameraToDepth(body.getJointMap().at(JointType_FootLeft).getPosition()));
-					vec2 point5 = (hipLPos + kneeLPos + ankleLPos + footLPos) / vec2(4);
-					gl::drawSolidCircle(point5, 5.0f, 32);
 
 					gl::lineWidth(5.0f);
-					gl::drawLine(point1, point2);
-					gl::drawLine(point2, point4);
-					gl::drawLine(point4, point5);
-					gl::drawLine(point5, point3);
-					gl::drawLine(point3, point1);
+
+					// draw pentagon for 1st person
+					if (counter == 0) {
+						gl::color(1, 0, 0);
+						
+						pointA1 = (headPos + shoulderPos) / vec2(2);
+						gl::drawSolidCircle(pointA1, 5.0f, 32);
+
+						
+						pointA2 = (shoulderRPos + elbowRPos + wristRPos + handRPos) / vec2(4);
+						gl::drawSolidCircle(pointA2, 5.0f, 32);
+
+						
+						pointA3 = (shoulderLPos + elbowLPos + wristLPos + handLPos) / vec2(4);
+						gl::drawSolidCircle(pointA3, 5.0f, 32);
+
+						pointA4 = (hipRPos + kneeRPos + ankleRPos + footRPos) / vec2(4);
+						gl::drawSolidCircle(pointA4, 5.0f, 32);
+						
+						pointA5 = (hipLPos + kneeLPos + ankleLPos + footLPos) / vec2(4);
+						gl::drawSolidCircle(pointA5, 5.0f, 32);
+
+						gl::drawLine(pointA1, pointA2);
+						gl::drawLine(pointA2, pointA4);
+						gl::drawLine(pointA4, pointA5);
+						gl::drawLine(pointA5, pointA3);
+						gl::drawLine(pointA3, pointA1);
+					}
+					// draw pentagon for 2nd person
+					else if (counter == 1) {
+						gl::color(0, 1, 0);
+
+						pointB1 = (headPos + shoulderPos) / vec2(2);
+						gl::drawSolidCircle(pointB1, 5.0f, 32);
+
+
+						pointB2 = (shoulderRPos + elbowRPos + wristRPos + handRPos) / vec2(4);
+						gl::drawSolidCircle(pointB2, 5.0f, 32);
+
+
+						pointB3 = (shoulderLPos + elbowLPos + wristLPos + handLPos) / vec2(4);
+						gl::drawSolidCircle(pointB3, 5.0f, 32);
+
+						pointB4 = (hipRPos + kneeRPos + ankleRPos + footRPos) / vec2(4);
+						gl::drawSolidCircle(pointB4, 5.0f, 32);
+
+						pointB5 = (hipLPos + kneeLPos + ankleLPos + footLPos) / vec2(4);
+						gl::drawSolidCircle(pointB5, 5.0f, 32);
+
+						gl::drawLine(pointB1, pointB2);
+						gl::drawLine(pointB2, pointB4);
+						gl::drawLine(pointB4, pointB5);
+						gl::drawLine(pointB5, pointB3);
+						gl::drawLine(pointB3, pointB1);
+
+						// calculate distances
+						int dist1 = sqrt(math<float>::pow(pointA1.x - pointB1.x, 2) + math<float>::pow(pointA1.y - pointB1.y, 2));
+						int dist2 = sqrt(math<float>::pow(pointA2.x - pointB2.x, 2) + math<float>::pow(pointA2.y - pointB2.y, 2));
+						int dist3 = sqrt(math<float>::pow(pointA3.x - pointB3.x, 2) + math<float>::pow(pointA3.y - pointB3.y, 2));
+						int dist4 = sqrt(math<float>::pow(pointA4.x - pointB4.x, 2) + math<float>::pow(pointA4.y - pointB4.y, 2));
+						int dist5 = sqrt(math<float>::pow(pointA5.x - pointB5.x, 2) + math<float>::pow(pointA5.y - pointB5.y, 2));
+					}
 				}
 				drawHand(body.getHandLeft(), mDevice->mapCameraToDepth(body.getJointMap().at(JointType_HandLeft).getPosition()));
 				drawHand(body.getHandRight(), mDevice->mapCameraToDepth(body.getJointMap().at(JointType_HandRight).getPosition()));
+
+				counter++;
 			}
 		}
 	}
